@@ -1,0 +1,28 @@
+# Compiled files
+*.tfstate.backup
+
+# Module directory
+.terraform/
+
+# terraform log
+*.log
+
+# auto-generated key pair file
+*.pem
+
+# tools files
+.DS_Store
+.idea
+
+# others
+.history/
+*.bak
+*.bk
+
+/packer/console/secrets.json
+/packer/backup_files/
+/terraform/Alicloud/backup_files/
+*.tfstate
+/worker/env/mkdev/vars/vars.auth.tfvars
+/worker/env/dev/vars/vars.auth.tfvars
+/worker/backup_files/
