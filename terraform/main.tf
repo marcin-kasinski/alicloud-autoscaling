@@ -2,20 +2,45 @@
 # Scaling group & configuration
 # ---------------
 resource "alicloud_ess_scaling_group" "mk-scaling-group-1" {
-  min_size           = 1
+  min_size           = 2
   max_size           = 3
   scaling_group_name = "mk-scaling-group-1"
   default_cooldown   = 60
   vswitch_ids        = ["vsw-uf6kasgtw804zlxhbcgvl"]
   removal_policies   = ["OldestScalingConfiguration", "OldestInstance"]
+  loadbalancer_ids = [local.loadbalancer_id]
   multi_az_policy    = "BALANCE"
 }
 
+data "alicloud_images" "images_ds" {
+  owners     = "system"
+  name_regex = "^centos_7"
+}
+
+output "first_image_id" {
+  value = data.alicloud_images.images_ds.images.0.id
+}
+
+
+output "loadbalancer_id_ORG" {
+  value = local.loadbalancer_id_ORG
+}
+
+output "loadbalancer_id" {
+  value = local.loadbalancer_id
+}
+
+locals {
+  loadbalancer_id_ORG=alicloud_slb_listener.default.id
+  loadbalancer_id= regex("^[a-z0-9\\-]+", alicloud_slb_listener.default.id)
+}
+
+
 resource "alicloud_ess_scaling_configuration" "mk-scaling-config-1" {
   scaling_group_id           = alicloud_ess_scaling_group.mk-scaling-group-1.id
-  image_id                   = data.alicloud_images.ubuntu-18-04-images.images[0].id
+  image_id                   = data.alicloud_images.images_ds.images.0.id
   instance_type              = "ecs.t5-lc2m1.nano"
-  instance_name              = "mk-scaled-instance"
+  instance_name              = "mk-scaled-instance-[]"
   security_group_id          = "sg-uf6517hncuo5e26f80sq"
   scaling_configuration_name = "mk-scaling-config-1"
   internet_charge_type       = "PayByTraffic"
